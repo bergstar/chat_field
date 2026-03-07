@@ -1,0 +1,7 @@
+.chat-field-filepond .filepond--root {
+    max-height: 20rem;
+}
+
+.chat-field-scroll {
+    scrollbar-width: thin;
+}

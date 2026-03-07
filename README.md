@@ -1,13 +1,11 @@
-# This is my package chat-field
+# Chat Field
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/bergstar/chat-field.svg?style=flat-square)](https://packagist.org/packages/bergstar/chat-field)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/bergstar/chat-field/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/bergstar/chat-field/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/bergstar/chat-field/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/bergstar/chat-field/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/bergstar/chat-field.svg?style=flat-square)](https://packagist.org/packages/bergstar/chat-field)
 
-
-
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+`bergstar/chat-field` provides a Filament 5 form field that renders a record-attached chat window directly inside a form. It stores a single thread per owner record, supports message text and file attachments, and automatically resolves the deepest saved singular relationship record when the field is nested inside a relationship section.
 
 ## Installation
 
@@ -17,46 +15,78 @@ You can install the package via composer:
 composer require bergstar/chat-field
 ```
 
-> [!IMPORTANT]
-> If you have not set up a custom theme and are using Filament Panels follow the instructions in the [Filament Docs](https://filamentphp.com/docs/4.x/styling/overview#creating-a-custom-theme) first.
-
-After setting up a custom theme add the plugin's views to your theme css file or your app's css file if using the standalone packages.
+If you use Filament Panels with a custom theme, add the package views to your theme CSS:
 
 ```css
 @source '../../../../vendor/bergstar/chat-field/resources/**/*.blade.php';
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="chat-field-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
+Publish the package assets:
 
 ```bash
 php artisan vendor:publish --tag="chat-field-config"
+php artisan vendor:publish --tag="chat-field-migrations"
 ```
 
-Optionally, you can publish the views using
+Then run your migrations:
 
 ```bash
-php artisan vendor:publish --tag="chat-field-views"
-```
-
-This is the contents of the published config file:
-
-```php
-return [
-];
+php artisan migrate
 ```
 
 ## Usage
 
+Add the field to any Filament form:
+
 ```php
-$chatField = new Toolborg\ChatField();
-echo $chatField->echoPhrase('Hello, Toolborg!');
+use Toolborg\ChatField\ChatField;
+
+ChatField::make('chat')
+```
+
+For nested singular relationships, add it inside a relationship layout component:
+
+```php
+use Filament\Schemas\Components\Section;
+use Toolborg\ChatField\ChatField;
+
+Section::make('Meta')
+    ->relationship('meta')
+    ->schema([
+        ChatField::make('chat'),
+    ])
+```
+
+Behavior:
+
+- One thread is stored per owner record.
+- The current authenticated user becomes the message author.
+- If the owner record does not exist yet, the field renders a save-first state instead of attaching to the wrong model.
+- Nested singular relationship sections use the deepest saved record in the chain.
+
+## Configuration
+
+The config file lets you override:
+
+- thread and message model classes
+- author display name column
+- messages per page
+- upload disk, directory, visibility, mime types, and size limits
+
+Default shape:
+
+```php
+return [
+    'author_name_column' => 'name',
+    'messages_per_page' => 10,
+    'uploads' => [
+        'disk' => 'public',
+        'directory' => 'chat-field-attachments',
+        'visibility' => 'public',
+        'max_file_size' => 12288,
+        'max_files' => 10,
+    ],
+];
 ```
 
 ## Testing

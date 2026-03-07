@@ -1,6 +1,6 @@
 {
     "name": "bergstar/chat-field",
-    "description": "This is my package chat-field",
+    "description": "A Filament 5 chat field that attaches a threaded chat window to the current form record.",
     "keywords": [
         "bergstar",
         "laravel",
@@ -52,17 +52,14 @@
         "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
         "analyse": "phpstan analyse",
         "lint": "pint",
-        "test": "pest",
+        "test": "pest --no-coverage",
         "test:lint": "pint --test"
     },
     "extra": {
         "laravel": {
             "providers": [
                 "Toolborg\\ChatField\\ChatFieldServiceProvider"
-            ],
-            "aliases": {
-                "ChatField": "Toolborg\\ChatField\\Facades\\ChatField"
-            }
+            ]
         }
     },
     "config": {

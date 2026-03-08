@@ -39,8 +39,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Toolborg\\ChatField\\": "src/",
-            "Toolborg\\ChatField\\Database\\Factories\\": "database/factories/"
+            "Toolborg\\ChatField\\": "src/"
         }
     },
     "autoload-dev": {

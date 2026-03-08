@@ -23,6 +23,10 @@ use Toolborg\ChatField\Models\ChatThread;
 use Toolborg\ChatField\Support\ChatThreadManager;
 use Toolborg\ChatField\Traits\InteractsWithChatAttachments;
 
+/**
+ * @property Schema $form
+ * @property-read LengthAwarePaginator $paginator
+ */
 class ChatWindow extends Component implements HasForms
 {
     use InteractsWithChatAttachments;
@@ -127,7 +131,13 @@ class ChatWindow extends Component implements HasForms
                 $state['original_attachment_file_names'] ?? [],
             );
 
-            $this->thread = $message->thread;
+            $thread = $message->thread;
+
+            if (! $thread instanceof ChatThread) {
+                throw new InvalidArgumentException('The chat thread could not be resolved for the new message.');
+            }
+
+            $this->thread = $thread;
             $this->threadMessages->prepend($message);
             $this->showUpload = false;
             $this->sendError = null;
@@ -145,7 +155,7 @@ class ChatWindow extends Component implements HasForms
             return;
         }
 
-        $this->threadMessages->push(...$this->paginator->getCollection());
+        $this->threadMessages->push(...$this->paginator()->getCollection());
         $this->currentPage++;
     }
 
@@ -180,7 +190,17 @@ class ChatWindow extends Component implements HasForms
     {
         $column = config('chat-field.author_name_column', 'name');
 
-        return (string) ($author?->{$column} ?? __('Unknown'));
+        if (! is_string($column) || $column === '') {
+            $column = 'name';
+        }
+
+        if (! $author instanceof Model) {
+            return __('Unknown');
+        }
+
+        $value = $author->getAttribute($column);
+
+        return filled($value) ? (string) $value : __('Unknown');
     }
 
     public function initials(?Model $author): string
@@ -236,13 +256,13 @@ class ChatWindow extends Component implements HasForms
     public function formatDividerDate($value): string
     {
         return Carbon::parse($value)
-            ->setTimezone(config('chat-field.timezone', config('app.timezone')))
+            ->setTimezone($this->configuredTimezone())
             ->format('F j, Y');
     }
 
     public function formatMessageTimestamp($value): string
     {
-        $date = Carbon::parse($value)->setTimezone(config('chat-field.timezone', config('app.timezone')));
+        $date = Carbon::parse($value)->setTimezone($this->configuredTimezone());
 
         return $date->isToday()
             ? $date->format('g:i A')
@@ -291,6 +311,23 @@ class ChatWindow extends Component implements HasForms
         }
 
         return config('chat-field.uploads.visibility', 'public');
+    }
+
+    protected function configuredTimezone(): string
+    {
+        $timezone = config('chat-field.timezone');
+
+        if (is_string($timezone) && $timezone !== '') {
+            return $timezone;
+        }
+
+        $appTimezone = config('app.timezone');
+
+        if (is_string($appTimezone) && $appTimezone !== '') {
+            return $appTimezone;
+        }
+
+        return 'UTC';
     }
 
     public function render()

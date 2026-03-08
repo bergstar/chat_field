@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['authorable_type', 'authorable_id'], 'chat_field_messages_author_index');
+            $table->index(['chat_thread_id', 'created_at'], 'chat_field_messages_thread_created_at_index');
         });
     }
 

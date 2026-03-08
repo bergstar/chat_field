@@ -10,20 +10,21 @@
         @php
             $nextMessage = $threadMessages[$index + 1] ?? null;
             $previousMessage = $threadMessages[$index - 1] ?? null;
+            $timezone = config('chat-field.timezone') ?: config('app.timezone', 'UTC');
 
             $currentDate = \Illuminate\Support\Carbon::parse($message->created_at)
-                ->setTimezone(config('chat-field.timezone', config('app.timezone')))
+                ->setTimezone($timezone)
                 ->format('Y-m-d');
 
             $nextDate = $nextMessage
                 ? \Illuminate\Support\Carbon::parse($nextMessage->created_at)
-                    ->setTimezone(config('chat-field.timezone', config('app.timezone')))
+                    ->setTimezone($timezone)
                     ->format('Y-m-d')
                 : null;
 
             $previousDate = $previousMessage
                 ? \Illuminate\Support\Carbon::parse($previousMessage->created_at)
-                    ->setTimezone(config('chat-field.timezone', config('app.timezone')))
+                    ->setTimezone($timezone)
                     ->format('Y-m-d')
                 : null;
 
@@ -46,7 +47,7 @@
         ])
     @endforeach
 
-    @if ($this->paginator->hasMorePages())
+    @if ($this->paginator()->hasMorePages())
         <div x-intersect="$wire.loadMoreMessages" class="h-4">
             <div class="mb-6 w-full text-center text-sm text-gray-500 dark:text-gray-400">
                 {{ __('Loading more messages...') }}

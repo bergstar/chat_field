@@ -8,7 +8,7 @@ return [
 
     'author_name_column' => 'name',
 
-    'timezone' => env('APP_TIMEZONE', 'UTC'),
+    'timezone' => null,
 
     'messages_per_page' => 10,
 

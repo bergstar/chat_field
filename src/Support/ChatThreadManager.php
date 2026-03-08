@@ -11,14 +11,18 @@ class ChatThreadManager
 {
     public function findThreadForOwner(Model $owner): ?ChatThread
     {
-        return $this->threadModel()::query()
+        $model = $this->threadModel();
+
+        return $model::query()
             ->forOwner($owner)
             ->first();
     }
 
     public function findOrCreateThreadForOwner(Model $owner): ChatThread
     {
-        return $this->threadModel()::query()->firstOrCreate([
+        $model = $this->threadModel();
+
+        return $model::query()->createOrFirst([
             'ownerable_type' => $owner->getMorphClass(),
             'ownerable_id' => (string) $owner->getKey(),
         ]);
@@ -49,13 +53,14 @@ class ChatThreadManager
         array $attachments = [],
         array $originalAttachmentFileNames = [],
     ): ChatMessage {
+        $model = $this->messageModel();
         $body = trim((string) $body);
 
         if ($body === '' && $attachments === []) {
             throw new InvalidArgumentException('A message or at least one attachment is required.');
         }
 
-        return $this->messageModel()::query()->create([
+        return $model::query()->create([
             'chat_thread_id' => $thread->getKey(),
             'body' => $body !== '' ? $body : null,
             'attachments' => $attachments !== [] ? $attachments : null,
@@ -65,11 +70,17 @@ class ChatThreadManager
         ])->loadMissing(['authorable', 'thread']);
     }
 
+    /**
+     * @return class-string<ChatThread>
+     */
     protected function threadModel(): string
     {
         return config('chat-field.models.thread', ChatThread::class);
     }
 
+    /**
+     * @return class-string<ChatMessage>
+     */
     protected function messageModel(): string
     {
         return config('chat-field.models.message', ChatMessage::class);

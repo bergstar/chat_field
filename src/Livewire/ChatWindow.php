@@ -260,7 +260,7 @@ class ChatWindow extends Component implements HasActions, HasForms
     {
         return Carbon::parse($value)
             ->setTimezone($this->configuredTimezone())
-            ->format('F j, Y');
+            ->format('d.m.Y');
     }
 
     public function formatMessageTimestamp($value): string
@@ -268,8 +268,8 @@ class ChatWindow extends Component implements HasActions, HasForms
         $date = Carbon::parse($value)->setTimezone($this->configuredTimezone());
 
         return $date->isToday()
-            ? $date->format('g:i A')
-            : $date->format('M d, Y g:i A');
+            ? $date->format('H:i')
+            : $date->format('d.m.Y H:i');
     }
 
     protected function hasOwnerRecord(): bool

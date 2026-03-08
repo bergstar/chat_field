@@ -6,25 +6,26 @@
     ])
 
     @include('chat-field::livewire.partials.message-input')
-</div>
 
-@script
-<script>
-    $wire.on('chat-field-scroll-to-bottom', () => {
-        const container = document.getElementById('chat-field-window-container');
+    <x-filament-actions::modals />
+    @script
+    <script>
+        $wire.on('chat-field-scroll-to-bottom', () => {
+            const container = document.getElementById('chat-field-window-container');
 
-        if (! container) {
-            return;
-        }
+            if (! container) {
+                return;
+            }
 
-        container.scrollTo({
-            top: container.scrollHeight,
-            behavior: 'smooth',
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: 'smooth',
+            });
+
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 300);
         });
-
-        setTimeout(() => {
-            container.scrollTop = container.scrollHeight;
-        }, 300);
-    });
-</script>
-@endscript
+    </script>
+    @endscript
+</div>

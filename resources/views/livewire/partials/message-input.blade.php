@@ -5,11 +5,11 @@
         </div>
     @endif
 
-    <form wire:submit="sendMessage" class="flex items-end gap-4">
+    <div class="flex items-end gap-4">
         <div class="max-h-96 w-full overflow-y-auto">
             {{ $this->form }}
         </div>
 
-        <x-filament::button type="submit" icon="heroicon-m-paper-airplane" class="!gap-0" />
-    </form>
+        <x-filament::button type="button" wire:click="sendMessage" wire:loading.attr="disabled" icon="heroicon-m-paper-airplane" class="!gap-0" />
+    </div>
 </div>

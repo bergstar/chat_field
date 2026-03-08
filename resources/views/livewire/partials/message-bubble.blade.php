@@ -1,5 +1,3 @@
-@php($author = $message->authorable)
-
 <div wire:key="message-{{ $message->getKey() }}">
     @if ($showDateDivider)
         <div class="my-4 flex justify-center">
@@ -13,7 +11,7 @@
         <div class="mb-2 flex items-end gap-2">
             @if ($showIncomingAvatar)
                 <div class="flex h-7 w-7 items-center justify-center rounded-full bg-primary-50 text-[11px] font-semibold text-primary-700 dark:bg-primary-500/15 dark:text-primary-200">
-                    {{ $this->initials($author) }}
+                    {{ $this->messageAuthorInitials($message) }}
                 </div>
             @else
                 <div class="h-7 w-7"></div>
@@ -22,7 +20,7 @@
             <div class="max-w-[85%] rounded-2xl rounded-bl-md bg-gray-100 px-3 py-2 text-sm text-gray-900 dark:bg-white/10 dark:text-white md:max-w-xl">
                 @if ($showIncomingAvatar)
                     <p class="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                        {{ $this->displayName($author) }}
+                        {{ $this->messageDisplayName($message) }}
                     </p>
                 @endif
 

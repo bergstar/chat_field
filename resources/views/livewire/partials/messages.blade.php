@@ -33,8 +33,7 @@
             $showIncomingAvatar = ! $isMine
                 && (
                     ! $previousMessage
-                    || $previousMessage->authorable_id !== $message->authorable_id
-                    || $previousMessage->authorable_type !== $message->authorable_type
+                    || $this->messageAuthorKey($previousMessage) !== $this->messageAuthorKey($message)
                     || $previousDate !== $currentDate
                 );
         @endphp

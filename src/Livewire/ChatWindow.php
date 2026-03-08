@@ -5,6 +5,7 @@ namespace Toolborg\ChatField\Livewire;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -43,17 +44,35 @@ class ChatWindow extends Component implements HasActions, HasForms
 
     public ?array $data = [];
 
+    public bool $readOnly = false;
+
+    public ?string $readOnlyNotice = null;
+
+    public ?string $title = null;
+
+    public ?string $meta = null;
+
     public bool $showUpload = false;
 
     public int $currentPage = 1;
 
     public ?string $sendError = null;
 
-    public function mount(?Model $ownerRecord = null): void
+    public function mount(
+        ?Model $ownerRecord = null,
+        bool $readOnly = false,
+        ?string $readOnlyNotice = null,
+        ?string $title = null,
+        ?string $meta = null,
+    ): void
     {
         $this->form->fill();
         $this->threadMessages = collect();
         $this->ownerRecord = $ownerRecord;
+        $this->readOnly = $readOnly;
+        $this->readOnlyNotice = $readOnlyNotice;
+        $this->title = $title;
+        $this->meta = $meta;
 
         if (! $this->hasOwnerRecord()) {
             return;
@@ -119,7 +138,7 @@ class ChatWindow extends Component implements HasActions, HasForms
 
     public function sendMessage(): void
     {
-        if (! $this->hasOwnerRecord()) {
+        if ($this->readOnly || ! $this->hasOwnerRecord()) {
             return;
         }
 
@@ -169,15 +188,11 @@ class ChatWindow extends Component implements HasActions, HasForms
             return new LengthAwarePaginator([], 0, config('chat-field.messages_per_page', 10), $this->currentPage);
         }
 
-        return $this->thread->messages()
-            ->with('authorable')
-            ->latest()
-            ->paginate(
-                config('chat-field.messages_per_page', 10),
-                ['*'],
-                'page',
-                $this->currentPage,
-            );
+        return $this->chatManager()->paginateMessages(
+            $this->thread,
+            $this->currentPage,
+            config('chat-field.messages_per_page', 10),
+        );
     }
 
     public function downloadAttachment(string $path, string $originalFileName)
@@ -223,7 +238,7 @@ class ChatWindow extends Component implements HasActions, HasForms
             return __('Save this record before using chat.');
         }
 
-        foreach (['title', 'name'] as $column) {
+        foreach (['title', 'name', 'reference', 'subject_reference_snapshot'] as $column) {
             $value = $this->ownerRecord->getAttribute($column);
 
             if (filled($value)) {
@@ -243,6 +258,25 @@ class ChatWindow extends Component implements HasActions, HasForms
         return class_basename($this->ownerRecord);
     }
 
+    public function chatTitle(): string
+    {
+        return filled($this->title) ? (string) $this->title : __('Chat');
+    }
+
+    public function chatMeta(): string
+    {
+        if (filled($this->meta)) {
+            return (string) $this->meta;
+        }
+
+        return $this->ownerMetaLabel() . ': ' . $this->ownerLabel();
+    }
+
+    public function headerInitials(): string
+    {
+        return $this->ownerInitials();
+    }
+
     public function ownerInitials(): string
     {
         return $this->initials($this->ownerRecord);
@@ -250,10 +284,34 @@ class ChatWindow extends Component implements HasActions, HasForms
 
     public function isMine(ChatMessage $message): bool
     {
-        $currentUser = $this->currentUserOrFail();
+        return $this->chatManager()->isMessageAuthoredBy($message, $this->currentUserOrFail());
+    }
 
-        return $message->authorable_type === $currentUser->getMorphClass()
-            && (string) $message->authorable_id === (string) $currentUser->getKey();
+    public function messageAuthorKey(ChatMessage $message): string
+    {
+        return $this->chatManager()->messageAuthorKey($message);
+    }
+
+    public function messageDisplayName(ChatMessage $message): string
+    {
+        $snapshotName = $message->getAttribute('author_name_snapshot');
+
+        if (filled($snapshotName)) {
+            return (string) $snapshotName;
+        }
+
+        $author = $message->getRelationValue('authorable');
+
+        if ($author instanceof Model) {
+            return $this->displayName($author);
+        }
+
+        return __('Unknown');
+    }
+
+    public function messageAuthorInitials(ChatMessage $message): string
+    {
+        return $this->initialsFromName($this->messageDisplayName($message));
     }
 
     public function formatDividerDate($value): string
@@ -279,7 +337,7 @@ class ChatWindow extends Component implements HasActions, HasForms
 
     protected function currentUserOrFail(): Model
     {
-        $user = auth()->user();
+        $user = Filament::auth()->user() ?? auth()->user();
 
         if (! $user instanceof Model) {
             abort(403);
@@ -290,7 +348,7 @@ class ChatWindow extends Component implements HasActions, HasForms
 
     protected function chatManager(): ChatThreadManager
     {
-        return app(ChatThreadManager::class);
+        return app(config('chat-field.manager', ChatThreadManager::class));
     }
 
     protected function uploadDisk(): string
@@ -331,6 +389,15 @@ class ChatWindow extends Component implements HasActions, HasForms
         }
 
         return 'UTC';
+    }
+
+    protected function initialsFromName(string $name): string
+    {
+        return collect(preg_split('/\s+/', trim($name)) ?: [])
+            ->filter()
+            ->take(2)
+            ->map(fn (string $segment): string => strtoupper(substr($segment, 0, 1)))
+            ->implode('');
     }
 
     public function render()

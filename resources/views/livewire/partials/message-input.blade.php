@@ -5,11 +5,17 @@
         </div>
     @endif
 
-    <div class="flex items-end gap-4">
-        <div class="max-h-96 w-full overflow-y-auto">
-            {{ $this->form }}
+    @if ($readOnly)
+        <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-300">
+            {{ $readOnlyNotice ?: __('Chat is read only.') }}
         </div>
+    @else
+        <div class="flex items-end gap-4">
+            <div class="max-h-96 w-full overflow-y-auto">
+                {{ $this->form }}
+            </div>
 
-        <x-filament::button type="button" wire:click="sendMessage" wire:loading.attr="disabled" icon="heroicon-m-paper-airplane" class="!gap-0" />
-    </div>
+            <x-filament::button type="button" wire:click="sendMessage" wire:loading.attr="disabled" icon="heroicon-m-paper-airplane" class="!gap-0" />
+        </div>
+    @endif
 </div>

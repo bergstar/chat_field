@@ -1,4 +1,6 @@
-<div class="flex h-full min-h-[32rem] w-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/10 dark:bg-gray-900">
+@php($styleHref = \Filament\Support\Facades\FilamentAsset::getStyleHref('chat-field-styles', package: 'bergstar/chat-field'))
+
+<div x-load-css="[@js($styleHref)]" class="flex h-full min-h-[32rem] w-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/10 dark:bg-gray-900">
     @include('chat-field::livewire.partials.header')
 
     @include('chat-field::livewire.partials.messages', [

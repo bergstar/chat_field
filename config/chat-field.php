@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'manager' => \Toolborg\ChatField\Support\ChatThreadManager::class,
+
     'models' => [
         'thread' => \Toolborg\ChatField\Models\ChatThread::class,
         'message' => \Toolborg\ChatField\Models\ChatMessage::class,

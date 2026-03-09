@@ -7,7 +7,7 @@
         </div>
     @endif
 
-    @if (! $isMine)
+    @if (! $isClient)
         <div class="mb-2 flex items-end gap-2">
             @if ($showIncomingAvatar)
                 <div class="flex h-7 w-7 items-center justify-center rounded-full bg-primary-50 text-[11px] font-semibold text-primary-700 dark:bg-primary-500/15 dark:text-primary-200">
@@ -18,12 +18,6 @@
             @endif
 
             <div class="max-w-[85%] rounded-2xl rounded-bl-md bg-gray-100 px-3 py-2 text-sm text-gray-900 dark:bg-white/10 dark:text-white md:max-w-xl">
-                @if ($showIncomingAvatar)
-                    <p class="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                        {{ $this->messageDisplayName($message) }}
-                    </p>
-                @endif
-
                 @if ($message->body)
                     <p class="whitespace-pre-wrap">{{ $message->body }}</p>
                 @endif
@@ -39,7 +33,7 @@
                 @endforeach
 
                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    {{ $this->formatMessageTimestamp($message->created_at) }}
+                    {{ $this->messageMetaLabel($message) }}
                 </p>
             </div>
         </div>
@@ -61,7 +55,7 @@
                 @endforeach
 
                 <p class="mt-2 text-xs text-primary-100/80">
-                    {{ $this->formatMessageTimestamp($message->created_at) }}
+                    {{ $this->messageMetaLabel($message) }}
                 </p>
             </div>
         </div>

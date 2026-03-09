@@ -28,9 +28,9 @@
                     ->format('Y-m-d')
                 : null;
 
-            $isMine = $this->isMine($message);
+            $isClient = $this->isClientMessage($message);
             $showDateDivider = $currentDate !== $nextDate;
-            $showIncomingAvatar = ! $isMine
+            $showIncomingAvatar = ! $isClient
                 && (
                     ! $previousMessage
                     || $this->messageAuthorKey($previousMessage) !== $this->messageAuthorKey($message)
@@ -40,7 +40,7 @@
 
         @include('chat-field::livewire.partials.message-bubble', [
             'message' => $message,
-            'isMine' => $isMine,
+            'isClient' => $isClient,
             'showDateDivider' => $showDateDivider,
             'showIncomingAvatar' => $showIncomingAvatar,
         ])

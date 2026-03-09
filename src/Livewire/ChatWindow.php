@@ -228,7 +228,7 @@ class ChatWindow extends Component implements HasActions, HasForms
         return collect(preg_split('/\s+/', trim($name)) ?: [])
             ->filter()
             ->take(2)
-            ->map(fn (string $segment): string => strtoupper(substr($segment, 0, 1)))
+            ->map(fn (string $segment): string => $this->firstLetter($segment))
             ->implode('');
     }
 
@@ -282,9 +282,17 @@ class ChatWindow extends Component implements HasActions, HasForms
         return $this->initials($this->ownerRecord);
     }
 
-    public function isMine(ChatMessage $message): bool
+    public function isClientMessage(ChatMessage $message): bool
     {
-        return $this->chatManager()->isMessageAuthoredBy($message, $this->currentUserOrFail());
+        $authorType = $message->getAttribute('author_type');
+
+        if (filled($authorType)) {
+            return $authorType === 'account';
+        }
+
+        $authorableType = $message->getAttribute('authorable_type');
+
+        return is_string($authorableType) && str_ends_with($authorableType, '\\Account');
     }
 
     public function messageAuthorKey(ChatMessage $message): string
@@ -312,6 +320,13 @@ class ChatWindow extends Component implements HasActions, HasForms
     public function messageAuthorInitials(ChatMessage $message): string
     {
         return $this->initialsFromName($this->messageDisplayName($message));
+    }
+
+    public function messageMetaLabel(ChatMessage $message): string
+    {
+        return $this->abbreviateName($this->messageDisplayName($message))
+            . ' · '
+            . $this->formatMessageTimestamp($message->created_at);
     }
 
     public function formatDividerDate($value): string
@@ -396,8 +411,36 @@ class ChatWindow extends Component implements HasActions, HasForms
         return collect(preg_split('/\s+/', trim($name)) ?: [])
             ->filter()
             ->take(2)
-            ->map(fn (string $segment): string => strtoupper(substr($segment, 0, 1)))
+            ->map(fn (string $segment): string => $this->firstLetter($segment))
             ->implode('');
+    }
+
+    protected function abbreviateName(string $name): string
+    {
+        $segments = collect(preg_split('/\s+/', trim($name)) ?: [])
+            ->filter()
+            ->values();
+
+        $firstName = $segments->get(0);
+
+        if (! is_string($firstName) || $firstName === '') {
+            return __('Unknown');
+        }
+
+        $secondName = $segments->get(1);
+
+        if (! is_string($secondName) || $secondName === '') {
+            return $firstName;
+        }
+
+        return $firstName . ' ' . $this->firstLetter($secondName) . '.';
+    }
+
+    protected function firstLetter(string $segment): string
+    {
+        $letter = mb_substr(trim($segment), 0, 1);
+
+        return $letter === '' ? '' : mb_strtoupper($letter);
     }
 
     public function render()

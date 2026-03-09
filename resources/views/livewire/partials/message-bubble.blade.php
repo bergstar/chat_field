@@ -17,7 +17,7 @@
                 <div class="h-7 w-7"></div>
             @endif
 
-            <div class="max-w-[85%] rounded-2xl rounded-bl-md bg-gray-100 px-3 py-2 text-sm text-gray-900 dark:bg-white/10 dark:text-white md:max-w-xl">
+            <div class="max-w-[85%] rounded-2xl rounded-bl-md border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-900 dark:border-white/10 dark:bg-white/10 dark:text-white md:max-w-xl">
                 @if ($message->body)
                     <p class="whitespace-pre-wrap">{{ $message->body }}</p>
                 @endif
@@ -26,7 +26,7 @@
                     @include('chat-field::livewire.partials.attachment-item', [
                         'attachment' => $attachment,
                         'message' => $message,
-                        'buttonClasses' => 'mt-2 flex w-full items-center gap-2 rounded-xl bg-white px-3 py-2 text-left text-gray-700 ring-1 ring-gray-200 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:ring-white/10 dark:hover:bg-gray-700',
+                        'buttonClasses' => 'mt-2 flex w-full items-center gap-2 rounded-xl bg-white px-3 py-2 text-left text-gray-700 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700',
                         'iconWrapperClasses' => 'inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-white',
                         'labelClasses' => 'truncate text-sm',
                     ])
@@ -39,7 +39,7 @@
         </div>
     @else
         <div class="mb-2 flex flex-col items-end gap-1">
-            <div class="max-w-[85%] rounded-2xl rounded-br-md bg-primary-600 px-3 py-2 text-sm text-white md:max-w-xl">
+            <div class="max-w-[85%] rounded-2xl rounded-br-md border bg-gray-100 px-3 py-2 text-sm text-gray-900 dark:bg-white/10 dark:text-white md:max-w-xl" style="border-color: var(--primary-500);">
                 @if ($message->body)
                     <p class="whitespace-pre-wrap">{{ $message->body }}</p>
                 @endif
@@ -48,13 +48,13 @@
                     @include('chat-field::livewire.partials.attachment-item', [
                         'attachment' => $attachment,
                         'message' => $message,
-                        'buttonClasses' => 'mt-2 flex w-full items-center gap-2 rounded-xl bg-primary-500/80 px-3 py-2 text-left text-white ring-1 ring-white/10 transition hover:bg-primary-500',
-                        'iconWrapperClasses' => 'inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-700 text-white',
-                        'labelClasses' => 'truncate text-sm text-white',
+                        'buttonClasses' => 'mt-2 flex w-full items-center gap-2 rounded-xl bg-white px-3 py-2 text-left text-gray-700 transition hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700',
+                        'iconWrapperClasses' => 'inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 text-primary-700 dark:bg-primary-500/15 dark:text-primary-200',
+                        'labelClasses' => 'truncate text-sm',
                     ])
                 @endforeach
 
-                <p class="mt-2 text-xs text-primary-100/80">
+                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                     {{ $this->messageMetaLabel($message) }}
                 </p>
             </div>

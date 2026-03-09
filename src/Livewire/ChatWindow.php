@@ -2,15 +2,12 @@
 
 namespace Toolborg\ChatField\Livewire;
 
-use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Schemas\Components\Actions;
-use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -107,33 +104,25 @@ class ChatWindow extends Component implements HasActions, HasForms
                         'class' => 'chat-field-filepond',
                     ])
                     ->visible(fn (): bool => $this->showUpload),
-                Flex::make([
-                    Actions::make([
-                        Action::make('toggle_upload')
-                            ->hiddenLabel()
-                            ->icon('heroicon-m-plus')
-                            ->color('gray')
-                            ->tooltip(__('Upload files'))
-                            ->action(function (): void {
-                                $this->showUpload = ! $this->showUpload;
-                            }),
-                    ])->grow(false),
-                    Forms\Components\Textarea::make('message')
-                        ->hiddenLabel()
-                        ->rows(1)
-                        ->autosize()
-                        ->grow(true)
-                        ->placeholder(__('Write a message...'))
-                        ->required(function (Get $get): bool {
-                            return count($get('attachments') ?? []) === 0;
-                        }),
-                ])->verticallyAlignEnd(),
+                Forms\Components\Textarea::make('message')
+                    ->hiddenLabel()
+                    ->rows(1)
+                    ->autosize()
+                    ->placeholder(__('chat-field::chat-field.placeholders.write_message'))
+                    ->required(function (Get $get): bool {
+                        return count($get('attachments') ?? []) === 0;
+                    }),
             ])
             ->columns(1)
             ->extraAttributes([
                 'class' => 'p-1',
             ])
             ->statePath('data');
+    }
+
+    public function toggleUpload(): void
+    {
+        $this->showUpload = ! $this->showUpload;
     }
 
     public function sendMessage(): void
@@ -156,7 +145,7 @@ class ChatWindow extends Component implements HasActions, HasForms
             $thread = $message->thread;
 
             if (! $thread instanceof ChatThread) {
-                throw new InvalidArgumentException('The chat thread could not be resolved for the new message.');
+                throw new InvalidArgumentException(__('chat-field::chat-field.messages.thread_resolution_failed'));
             }
 
             $this->thread = $thread;
@@ -201,7 +190,7 @@ class ChatWindow extends Component implements HasActions, HasForms
             return Storage::disk($this->uploadDisk())->download($path, $originalFileName);
         }
 
-        abort(404, __('File not found.'));
+        abort(404, __('chat-field::chat-field.messages.file_not_found'));
     }
 
     public function displayName(?Model $author): string
@@ -213,12 +202,12 @@ class ChatWindow extends Component implements HasActions, HasForms
         }
 
         if (! $author instanceof Model) {
-            return __('Unknown');
+            return __('chat-field::chat-field.labels.unknown');
         }
 
         $value = $author->getAttribute($column);
 
-        return filled($value) ? (string) $value : __('Unknown');
+        return filled($value) ? (string) $value : __('chat-field::chat-field.labels.unknown');
     }
 
     public function initials(?Model $author): string
@@ -235,7 +224,7 @@ class ChatWindow extends Component implements HasActions, HasForms
     public function ownerLabel(): string
     {
         if (! $this->ownerRecord instanceof Model) {
-            return __('Save this record before using chat.');
+            return __('chat-field::chat-field.messages.save_record_first');
         }
 
         foreach (['title', 'name', 'reference', 'subject_reference_snapshot'] as $column) {
@@ -252,7 +241,7 @@ class ChatWindow extends Component implements HasActions, HasForms
     public function ownerMetaLabel(): string
     {
         if (! $this->ownerRecord instanceof Model) {
-            return __('Record chat');
+            return __('chat-field::chat-field.labels.record_chat');
         }
 
         return class_basename($this->ownerRecord);
@@ -260,7 +249,7 @@ class ChatWindow extends Component implements HasActions, HasForms
 
     public function chatTitle(): string
     {
-        return filled($this->title) ? (string) $this->title : __('Chat');
+        return filled($this->title) ? (string) $this->title : __('chat-field::chat-field.labels.chat');
     }
 
     public function chatMeta(): string
@@ -314,7 +303,7 @@ class ChatWindow extends Component implements HasActions, HasForms
             return $this->displayName($author);
         }
 
-        return __('Unknown');
+        return __('chat-field::chat-field.labels.unknown');
     }
 
     public function messageAuthorInitials(ChatMessage $message): string
@@ -424,7 +413,7 @@ class ChatWindow extends Component implements HasActions, HasForms
         $firstName = $segments->get(0);
 
         if (! is_string($firstName) || $firstName === '') {
-            return __('Unknown');
+            return __('chat-field::chat-field.labels.unknown');
         }
 
         $secondName = $segments->get(1);

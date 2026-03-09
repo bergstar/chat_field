@@ -49,7 +49,7 @@
     @if ($this->paginator()->hasMorePages())
         <div x-intersect="$wire.loadMoreMessages" class="h-4">
             <div class="mb-6 w-full text-center text-sm text-gray-500 dark:text-gray-400">
-                {{ __('Loading more messages...') }}
+                {{ __('chat-field::chat-field.messages.loading_more') }}
             </div>
         </div>
     @endif

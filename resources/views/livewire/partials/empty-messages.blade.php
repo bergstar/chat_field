@@ -5,11 +5,11 @@
         </div>
 
         <p class="text-sm font-semibold text-gray-950 dark:text-white">
-            {{ __('No messages yet') }}
+            {{ __('chat-field::chat-field.empty_state.title') }}
         </p>
 
         <p class="text-sm text-gray-500 dark:text-gray-400">
-            {{ __('Start the conversation for this record.') }}
+            {{ __('chat-field::chat-field.empty_state.description') }}
         </p>
     </div>
 </div>

@@ -58,7 +58,7 @@ class ChatThreadManager
         $body = trim((string) $body);
 
         if ($body === '' && $attachments === []) {
-            throw new InvalidArgumentException('A message or at least one attachment is required.');
+            throw new InvalidArgumentException(__('chat-field::chat-field.messages.message_or_attachment_required'));
         }
 
         return $model::query()->create([

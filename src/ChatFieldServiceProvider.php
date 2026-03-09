@@ -21,6 +21,7 @@ class ChatFieldServiceProvider extends PackageServiceProvider
         $package
             ->name(static::$name)
             ->hasConfigFile()
+            ->hasTranslations()
             ->hasViews(static::$viewNamespace)
             ->hasMigrations([
                 'create_chat_field_threads_table',

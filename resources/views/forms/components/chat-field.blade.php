@@ -16,11 +16,11 @@
 
                 <div class="space-y-1">
                     <p class="text-sm font-semibold text-gray-950 dark:text-white">
-                        {{ __('Save this record before using chat.') }}
+                        {{ __('chat-field::chat-field.messages.save_record_first') }}
                     </p>
 
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ __('The chat thread is attached to the current persisted record or the deepest saved singular relationship in this form.') }}
+                        {{ __('chat-field::chat-field.empty_state.save_first_description') }}
                     </p>
                 </div>
             </div>

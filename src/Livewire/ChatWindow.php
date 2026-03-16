@@ -80,6 +80,8 @@ class ChatWindow extends Component implements HasActions, HasForms
         if ($this->thread instanceof ChatThread) {
             $this->loadMoreMessages();
         }
+
+        $this->syncRealtimeState();
     }
 
     public function form(Schema $form): Schema
@@ -168,6 +170,24 @@ class ChatWindow extends Component implements HasActions, HasForms
 
         $this->threadMessages->push(...$this->paginator()->getCollection());
         $this->currentPage++;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    public function handleBroadcast(array $payload = []): void
+    {
+        if (! $this->hasOwnerRecord()) {
+            return;
+        }
+
+        $this->thread = $this->chatManager()->findThreadForOwner($this->ownerRecord);
+        $this->reloadLoadedMessages();
+        $this->syncRealtimeState();
+
+        if (($payload['action'] ?? null) === 'message.created') {
+            $this->dispatch('chat-field-scroll-to-bottom');
+        }
     }
 
     #[Computed]
@@ -318,6 +338,23 @@ class ChatWindow extends Component implements HasActions, HasForms
             . $this->formatMessageTimestamp($message->created_at);
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function realtimeChannels(): array
+    {
+        if (! $this->hasOwnerRecord()) {
+            return [];
+        }
+
+        return $this->chatManager()->realtimeChannelsForOwner($this->ownerRecord);
+    }
+
+    public function realtimeEventName(): ?string
+    {
+        return $this->chatManager()->realtimeEventName();
+    }
+
     public function formatDividerDate($value): string
     {
         return Carbon::parse($value)
@@ -393,6 +430,50 @@ class ChatWindow extends Component implements HasActions, HasForms
         }
 
         return 'UTC';
+    }
+
+    protected function syncRealtimeState(): void
+    {
+        if (! $this->hasOwnerRecord()) {
+            return;
+        }
+
+        $state = $this->chatManager()->resolveRealtimeStateForOwner(
+            $this->ownerRecord,
+            $this->thread,
+            Filament::auth()->user() ?? auth()->user(),
+        );
+
+        if (! is_array($state)) {
+            return;
+        }
+
+        $this->readOnly = (bool) ($state['readOnly'] ?? $this->readOnly);
+        $this->readOnlyNotice = $state['readOnlyNotice'] ?? $this->readOnlyNotice;
+    }
+
+    protected function reloadLoadedMessages(): void
+    {
+        if (! $this->thread instanceof ChatThread) {
+            $this->threadMessages = collect();
+            $this->currentPage = 1;
+
+            return;
+        }
+
+        $loadedPages = max($this->currentPage - 1, 1);
+        $messages = collect();
+
+        for ($page = 1; $page <= $loadedPages; $page++) {
+            $messages->push(...$this->chatManager()->paginateMessages(
+                $this->thread,
+                $page,
+                config('chat-field.messages_per_page', 10),
+            )->getCollection());
+        }
+
+        $this->threadMessages = $messages;
+        $this->currentPage = $loadedPages + 1;
     }
 
     protected function initialsFromName(string $name): string

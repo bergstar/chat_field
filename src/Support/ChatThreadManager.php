@@ -94,6 +94,27 @@ class ChatThreadManager
     }
 
     /**
+     * @return array<int, string>
+     */
+    public function realtimeChannelsForOwner(Model $owner): array
+    {
+        return [];
+    }
+
+    public function realtimeEventName(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @return array{readOnly: bool, readOnlyNotice: ?string}|null
+     */
+    public function resolveRealtimeStateForOwner(Model $owner, ?ChatThread $thread, ?Model $viewer): ?array
+    {
+        return null;
+    }
+
+    /**
      * @return class-string<ChatThread>
      */
     protected function threadModel(): string

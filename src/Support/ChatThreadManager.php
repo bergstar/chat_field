@@ -106,6 +106,16 @@ class ChatThreadManager
         return null;
     }
 
+    public function attachmentDownloadUrl(ChatMessage $message, string $path, ?Model $viewer = null): ?string
+    {
+        return null;
+    }
+
+    public function attachmentPreviewUrl(ChatMessage $message, string $path, ?Model $viewer = null): ?string
+    {
+        return null;
+    }
+
     /**
      * @return array{readOnly: bool, readOnlyNotice: ?string}|null
      */

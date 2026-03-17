@@ -213,6 +213,16 @@ class ChatWindow extends Component implements HasActions, HasForms
         abort(404, __('chat-field::chat-field.messages.file_not_found'));
     }
 
+    public function attachmentDownloadUrl(ChatMessage $message, string $path): ?string
+    {
+        return $this->chatManager()->attachmentDownloadUrl($message, $path, $this->currentUser());
+    }
+
+    public function attachmentPreviewUrl(ChatMessage $message, string $path): ?string
+    {
+        return $this->chatManager()->attachmentPreviewUrl($message, $path, $this->currentUser());
+    }
+
     public function displayName(?Model $author): string
     {
         $column = config('chat-field.author_name_column', 'name');
@@ -378,13 +388,20 @@ class ChatWindow extends Component implements HasActions, HasForms
 
     protected function currentUserOrFail(): Model
     {
-        $user = Filament::auth()->user() ?? auth()->user();
+        $user = $this->currentUser();
 
         if (! $user instanceof Model) {
             abort(403);
         }
 
         return $user;
+    }
+
+    protected function currentUser(): ?Model
+    {
+        $user = Filament::auth()->user() ?? auth()->user();
+
+        return $user instanceof Model ? $user : null;
     }
 
     protected function chatManager(): ChatThreadManager
@@ -462,17 +479,43 @@ class ChatWindow extends Component implements HasActions, HasForms
         }
 
         $loadedPages = max($this->currentPage - 1, 1);
-        $messages = collect();
+        $perPage = config('chat-field.messages_per_page', 10);
+        $latestMessages = $this->chatManager()->paginateMessages(
+            $this->thread,
+            1,
+            $perPage,
+        )->getCollection();
 
-        for ($page = 1; $page <= $loadedPages; $page++) {
-            $messages->push(...$this->chatManager()->paginateMessages(
-                $this->thread,
-                $page,
-                config('chat-field.messages_per_page', 10),
-            )->getCollection());
+        if ($this->threadMessages->isEmpty()) {
+            $this->threadMessages = $latestMessages->values();
+            $this->currentPage = 2;
+
+            return;
         }
 
-        $this->threadMessages = $messages;
+        $messages = collect();
+        $seenKeys = [];
+
+        foreach ($latestMessages as $message) {
+            $key = (string) $message->getKey();
+            $seenKeys[$key] = true;
+            $messages->push($message);
+        }
+
+        foreach ($this->threadMessages as $message) {
+            $key = (string) $message->getKey();
+
+            if (isset($seenKeys[$key])) {
+                continue;
+            }
+
+            $seenKeys[$key] = true;
+            $messages->push($message);
+        }
+
+        $maxLoadedMessages = $loadedPages * $perPage;
+
+        $this->threadMessages = $messages->take($maxLoadedMessages)->values();
         $this->currentPage = $loadedPages + 1;
     }
 

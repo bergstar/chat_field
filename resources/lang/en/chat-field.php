@@ -18,6 +18,7 @@ return [
         'loading_more' => 'Loading more messages...',
         'save_record_first' => 'Save this record before using chat.',
         'file_not_found' => 'File not found.',
+        'attachments_help' => 'Click a file to open it. Use the cross on the card to remove it before sending.',
         'message_or_attachment_required' => 'A message or at least one attachment is required.',
         'thread_resolution_failed' => 'The chat thread could not be resolved for the new message.',
     ],

@@ -23,6 +23,12 @@
 
             <div class="w-full">
                 {{ $this->form }}
+
+                @if ($showUpload)
+                    <div class="mt-2 px-1 text-xs text-gray-500 dark:text-gray-400">
+                        {{ __('chat-field::chat-field.messages.attachments_help') }}
+                    </div>
+                @endif
             </div>
 
             <x-filament::button

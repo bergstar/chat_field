@@ -35,8 +35,28 @@
     text-align: left;
 }
 
+.chat-field-filepond .filepond--progress-indicator {
+    display: none;
+}
+
+.chat-field-filepond .filepond--file-action-button {
+    background-color: rgb(15 23 42 / 0.72);
+}
+
+.chat-field-filepond .filepond--file-action-button:hover {
+    background-color: rgb(15 23 42 / 0.88);
+}
+
 .dark .chat-field-filepond .filepond--root {
     border-color: rgb(255 255 255 / 0.12);
+}
+
+.dark .chat-field-filepond .filepond--file-action-button {
+    background-color: rgb(255 255 255 / 0.14);
+}
+
+.dark .chat-field-filepond .filepond--file-action-button:hover {
+    background-color: rgb(255 255 255 / 0.22);
 }
 
 .chat-field-filepond .filepond--list-scroller,

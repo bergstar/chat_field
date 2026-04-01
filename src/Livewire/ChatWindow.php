@@ -93,6 +93,7 @@ class ChatWindow extends Component implements HasActions, HasForms
                     ->multiple()
                     ->storeFileNamesIn('original_attachment_file_names')
                     ->fetchFileInformation()
+                    ->openable()
                     ->disk($this->uploadDisk())
                     ->directory(fn (): string => $this->uploadDirectory())
                     ->visibility(fn (): string => $this->uploadVisibility())

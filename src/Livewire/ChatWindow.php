@@ -168,7 +168,7 @@ class ChatWindow extends Component implements HasActions, HasForms
             return;
         }
 
-        $this->threadMessages->push(...$this->paginator()->getCollection());
+        $this->appendUniqueMessages($this->paginator()->getCollection());
         $this->currentPage++;
     }
 
@@ -493,30 +493,20 @@ class ChatWindow extends Component implements HasActions, HasForms
             return;
         }
 
-        $messages = collect();
-        $seenKeys = [];
+        $this->threadMessages = $latestMessages
+            ->concat($this->threadMessages)
+            ->unique(fn ($message) => (string) $message->getKey())
+            ->values();
 
-        foreach ($latestMessages as $message) {
-            $key = (string) $message->getKey();
-            $seenKeys[$key] = true;
-            $messages->push($message);
-        }
-
-        foreach ($this->threadMessages as $message) {
-            $key = (string) $message->getKey();
-
-            if (isset($seenKeys[$key])) {
-                continue;
-            }
-
-            $seenKeys[$key] = true;
-            $messages->push($message);
-        }
-
-        $maxLoadedMessages = $loadedPages * $perPage;
-
-        $this->threadMessages = $messages->take($maxLoadedMessages)->values();
         $this->currentPage = $loadedPages + 1;
+    }
+
+    protected function appendUniqueMessages(Collection $messages): void
+    {
+        $this->threadMessages = $this->threadMessages
+            ->concat($messages)
+            ->unique(fn ($message) => (string) $message->getKey())
+            ->values();
     }
 
     protected function initialsFromName(string $name): string

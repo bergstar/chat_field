@@ -1,5 +1,47 @@
+.chat-field-composer-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.chat-field-upload-wrapper {
+    margin: 0;
+    overflow: hidden;
+    transition:
+        max-height 160ms ease,
+        opacity 160ms ease,
+        margin-bottom 160ms ease;
+}
+
+.chat-field-upload-wrapper-collapsed {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.chat-field-upload-wrapper-visible {
+    max-height: 18rem;
+    opacity: 1;
+}
+
 .chat-field-filepond .filepond--root {
-    max-height: 20rem;
+    max-height: 18rem;
+    border: 1px solid rgb(203 213 225 / 0.9);
+    box-shadow: none;
+}
+
+.chat-field-filepond .filepond--drop-label label {
+    padding: 0.875rem 1rem !important;
+    text-align: left;
+}
+
+.dark .chat-field-filepond .filepond--root {
+    border-color: rgb(255 255 255 / 0.12);
+}
+
+.chat-field-filepond .filepond--list-scroller,
+.chat-field-filepond .filepond--list {
+    max-height: 14rem;
 }
 
 .chat-field-scroll {

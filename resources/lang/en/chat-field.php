@@ -10,6 +10,7 @@ return [
 
     'placeholders' => [
         'write_message' => 'Write a message...',
+        'attach_files' => 'Add files',
     ],
 
     'messages' => [

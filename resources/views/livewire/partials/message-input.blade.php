@@ -10,20 +10,18 @@
             {{ $readOnlyNotice ?: __('chat-field::chat-field.messages.read_only') }}
         </div>
     @else
-        <div class="flex items-end gap-3">
+        <div class="chat-field-composer flex items-end gap-3">
             <x-filament::button
                 type="button"
                 color="gray"
                 icon="heroicon-m-plus"
-                wire:click="toggleUpload"
+                wire:click="openUploadPicker"
+                x-on:click.stop="$root.querySelector('.chat-field-filepond input[type=file]')?.click()"
                 wire:loading.attr="disabled"
                 class="!gap-0 shrink-0"
             />
 
-            <div @class([
-                'w-full',
-                'max-h-96 overflow-y-auto' => $showUpload,
-            ])>
+            <div class="w-full">
                 {{ $this->form }}
             </div>
 

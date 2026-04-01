@@ -101,11 +101,17 @@ class ChatWindow extends Component implements HasActions, HasForms
                     ->minSize(config('chat-field.uploads.min_file_size', 1))
                     ->maxFiles(config('chat-field.uploads.max_files', 10))
                     ->minFiles(config('chat-field.uploads.min_files', 0))
-                    ->panelLayout('grid')
+                    ->panelLayout('compact')
+                    ->imagePreviewHeight('4rem')
+                    ->placeholder(__('chat-field::chat-field.placeholders.attach_files'))
                     ->extraAttributes([
                         'class' => 'chat-field-filepond',
                     ])
-                    ->visible(fn (): bool => $this->showUpload),
+                    ->extraFieldWrapperAttributes(fn (): array => [
+                        'class' => $this->showUpload
+                            ? 'chat-field-upload-wrapper chat-field-upload-wrapper-visible'
+                            : 'chat-field-upload-wrapper chat-field-upload-wrapper-collapsed',
+                    ]),
                 Forms\Components\Textarea::make('message')
                     ->hiddenLabel()
                     ->rows(1)
@@ -117,14 +123,27 @@ class ChatWindow extends Component implements HasActions, HasForms
             ])
             ->columns(1)
             ->extraAttributes([
-                'class' => 'p-1',
+                'class' => 'chat-field-composer-form p-1',
             ])
             ->statePath('data');
     }
 
-    public function toggleUpload(): void
+    public function openUploadPicker(): void
     {
-        $this->showUpload = ! $this->showUpload;
+        $this->showUpload = true;
+        $this->sendError = null;
+    }
+
+    /**
+     * @param  array<int, mixed>|null  $value
+     */
+    public function updatedDataAttachments(?array $value): void
+    {
+        $attachments = collect($value ?? [])
+            ->filter(fn ($attachment): bool => filled($attachment))
+            ->values();
+
+        $this->showUpload = $attachments->isNotEmpty();
     }
 
     public function sendMessage(): void

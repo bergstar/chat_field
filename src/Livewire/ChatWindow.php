@@ -118,6 +118,9 @@ class ChatWindow extends Component implements HasActions, HasForms
                     ->rows(1)
                     ->autosize()
                     ->placeholder(__('chat-field::chat-field.placeholders.write_message'))
+                    ->validationMessages([
+                        'required' => __('chat-field::chat-field.messages.message_or_attachment_required'),
+                    ])
                     ->required(function (Get $get): bool {
                         return count($get('attachments') ?? []) === 0;
                     }),

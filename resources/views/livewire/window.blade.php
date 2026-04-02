@@ -27,8 +27,12 @@
                     channels: Array.isArray(config.channels) ? config.channels : [],
                     eventName: config.eventName,
                     subscriptions: [],
+                    pollIntervalId: null,
+                    pollIntervalMs: 5000,
 
                     init() {
+                        this.startPollingFallback();
+
                         if (! window.Echo || ! this.eventName || this.channels.length === 0) {
                             return;
                         }
@@ -50,7 +54,34 @@
                         });
                     },
 
+                    startPollingFallback() {
+                        if (this.pollIntervalId) {
+                            return;
+                        }
+
+                        this.pollIntervalId = window.setInterval(() => {
+                            if (this.isRealtimeConnected()) {
+                                return;
+                            }
+
+                            this.$wire.handleBroadcast({
+                                action: 'poll.refresh',
+                            });
+                        }, this.pollIntervalMs);
+                    },
+
+                    isRealtimeConnected() {
+                        const state = window.Echo?.connector?.pusher?.connection?.state;
+
+                        return state === 'connected';
+                    },
+
                     destroy() {
+                        if (this.pollIntervalId) {
+                            window.clearInterval(this.pollIntervalId);
+                            this.pollIntervalId = null;
+                        }
+
                         if (! window.Echo) {
                             this.subscriptions = [];
 

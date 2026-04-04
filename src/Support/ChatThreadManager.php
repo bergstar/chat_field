@@ -10,6 +10,8 @@ use Toolborg\ChatField\Models\ChatThread;
 
 class ChatThreadManager
 {
+    protected int $messageMaxLength = 1024;
+
     public function findThreadForOwner(Model $owner): ?ChatThread
     {
         $model = $this->threadModel();
@@ -55,7 +57,7 @@ class ChatThreadManager
         array $originalAttachmentFileNames = [],
     ): ChatMessage {
         $model = $this->messageModel();
-        $body = trim((string) $body);
+        $body = $this->normalizeBody($body) ?? '';
 
         if ($body === '' && $attachments === []) {
             throw new InvalidArgumentException(__('chat-field::chat-field.messages.message_or_attachment_required'));
@@ -138,5 +140,16 @@ class ChatThreadManager
     protected function messageModel(): string
     {
         return config('chat-field.models.message', ChatMessage::class);
+    }
+
+    protected function normalizeBody(?string $body): ?string
+    {
+        $body = trim((string) $body);
+
+        if ($body === '') {
+            return null;
+        }
+
+        return mb_substr($body, 0, $this->messageMaxLength);
     }
 }

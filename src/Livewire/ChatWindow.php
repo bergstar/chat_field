@@ -118,6 +118,7 @@ class ChatWindow extends Component implements HasActions, HasForms
                     ->hiddenLabel()
                     ->rows(1)
                     ->autosize()
+                    ->maxLength(1024)
                     ->placeholder(__('chat-field::chat-field.placeholders.write_message'))
                     ->validationMessages([
                         'required' => __('chat-field::chat-field.messages.message_or_attachment_required'),

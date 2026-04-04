@@ -82,6 +82,7 @@ class ChatWindow extends Component implements HasActions, HasForms
         }
 
         $this->syncRealtimeState();
+        $this->markThreadAsRead();
     }
 
     public function form(Schema $form): Schema
@@ -207,6 +208,7 @@ class ChatWindow extends Component implements HasActions, HasForms
         $this->thread = $this->chatManager()->findThreadForOwner($this->ownerRecord);
         $this->reloadLoadedMessages();
         $this->syncRealtimeState();
+        $this->markThreadAsRead();
 
         if (($payload['action'] ?? null) === 'message.created') {
             $this->dispatch('chat-field-scroll-to-bottom');
@@ -490,6 +492,21 @@ class ChatWindow extends Component implements HasActions, HasForms
 
         $this->readOnly = (bool) ($state['readOnly'] ?? $this->readOnly);
         $this->readOnlyNotice = $state['readOnlyNotice'] ?? $this->readOnlyNotice;
+    }
+
+    protected function markThreadAsRead(): void
+    {
+        $chatManager = $this->chatManager();
+
+        if (! method_exists($chatManager, 'markThreadAsReadForViewer')) {
+            return;
+        }
+
+        $chatManager->markThreadAsReadForViewer(
+            $this->ownerRecord,
+            $this->thread,
+            $this->currentUser(),
+        );
     }
 
     protected function reloadLoadedMessages(): void

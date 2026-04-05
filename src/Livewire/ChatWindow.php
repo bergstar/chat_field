@@ -508,6 +508,9 @@ class ChatWindow extends Component implements HasActions, HasForms
             $this->thread,
             $this->currentUser(),
         );
+
+        $this->dispatch('refresh-sidebar');
+        $this->dispatch('refresh-topbar');
     }
 
     protected function reloadLoadedMessages(): void
